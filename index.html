@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Jeopardy BJJ Edition</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONFETTI LAYER (above all screens, below modals)
+═══════════════════════════════════════════════════════ -->
+<div id="confetti-container" aria-hidden="true"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1 — TITLE
+═══════════════════════════════════════════════════════ -->
+<div id="screen-title" class="screen screen-title">
+  <div class="title-inner">
+    <p class="title-eyebrow">🥋 The Quiz That Taps Out All Others</p>
+    <h1 class="title-heading">Jeopardy</h1>
+    <h2 class="title-subheading">BJJ Edition</h2>
+    <p class="title-desc">
+      5 categories · 5 clues each · Daily Doubles · Final Jeopardy<br>
+      300 clues across 10+ rounds of BJJ trivia
+    </p>
+    <button id="btn-start-game" class="btn btn-primary btn-lg">Start Game</button>
+    <button id="btn-how-to-play" class="btn btn-ghost btn-htp">How to Play</button>
+    <p class="title-version">v1.0</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 2 — GAME
+═══════════════════════════════════════════════════════ -->
+<div id="screen-game" class="screen screen-game" style="display:none">
+
+  <!-- ── Header: Team scores + round info ─────────────── -->
+  <header class="game-header">
+
+    <!-- Team 0 -->
+    <div class="team-panel team-panel-left">
+      <div class="team-name-wrap">
+        <span id="team-name-0" class="team-name" title="Double-click to rename">Team 1</span>
+      </div>
+      <div class="team-score-wrap">
+        <button class="score-adj-btn" id="btn-score-adj-0-minus" aria-label="Subtract 100 from Team 1">−</button>
+        <span id="score-0" class="team-score">$0</span>
+        <button class="score-adj-btn" id="btn-score-adj-0-plus" aria-label="Add 100 to Team 1">+</button>
+      </div>
+    </div>
+
+    <!-- Center info -->
+    <div class="game-info-center">
+      <div id="round-info" class="round-info">Round 1</div>
+      <div id="clues-left" class="clues-left">25 clues left</div>
+    </div>
+
+    <!-- Team 1 -->
+    <div class="team-panel team-panel-right">
+      <div class="team-name-wrap">
+        <span id="team-name-1" class="team-name" title="Double-click to rename">Team 2</span>
+      </div>
+      <div class="team-score-wrap">
+        <button class="score-adj-btn" id="btn-score-adj-1-minus" aria-label="Subtract 100 from Team 2">−</button>
+        <span id="score-1" class="team-score">$0</span>
+        <button class="score-adj-btn" id="btn-score-adj-1-plus" aria-label="Add 100 to Team 2">+</button>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- ── Board ─────────────────────────────────────────── -->
+  <main id="game-board" class="game-board" role="grid" aria-label="Game board"></main>
+
+  <!-- ── Footer controls ───────────────────────────────── -->
+  <footer class="game-footer">
+    <button id="btn-next-round"     class="btn btn-secondary" style="display:none">Next Round →</button>
+    <button id="btn-final-jeopardy" class="btn btn-accent">Final Jeopardy</button>
+    <button id="btn-reset"          class="btn btn-ghost btn-sm">↺ Reset</button>
+  </footer>
+
+</div><!-- /screen-game -->
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 3 — GAME OVER
+═══════════════════════════════════════════════════════ -->
+<div id="screen-gameover" class="screen screen-gameover" style="display:none">
+  <div class="gameover-inner">
+    <h2 class="go-title">Game Over!</h2>
+    <p id="go-winner" class="go-winner">Team 1 wins!</p>
+    <p id="go-score-0" class="go-score"></p>
+    <p id="go-score-1" class="go-score"></p>
+    <button id="btn-reset-from-over" class="btn btn-primary btn-lg">Play Again</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL — CLUE
+═══════════════════════════════════════════════════════ -->
+<div id="modal-clue" class="modal" role="dialog" aria-modal="true" aria-labelledby="clue-category">
+
+  <div class="modal-box">
+    <div class="modal-clue-header">
+      <span id="clue-category" class="modal-cat-name"></span>
+      <span id="clue-value" class="modal-clue-value"></span>
+    </div>
+
+    <div class="modal-clue-body">
+      <p id="clue-text" class="clue-text"></p>
+    </div>
+
+    <div class="modal-answer-area">
+      <button id="btn-reveal-answer" class="btn btn-reveal">Show Answer</button>
+      <p id="clue-answer" class="clue-answer hidden"></p>
+    </div>
+
+    <div id="clue-score-buttons" class="score-buttons-area"></div>
+
+    <div class="modal-footer">
+      <button id="btn-close-clue" class="btn btn-ghost btn-sm">Skip — no score</button>
+    </div>
+  </div>
+
+</div><!-- /modal-clue -->
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL — DAILY DOUBLE
+═══════════════════════════════════════════════════════ -->
+<div id="modal-dd" class="modal modal-dd" role="dialog" aria-modal="true" aria-labelledby="dd-headline">
+
+  <div class="modal-box modal-dd-box">
+    <div class="dd-banner">
+      <span class="dd-star">★</span>
+      <span id="dd-headline" class="dd-headline">Daily Double!</span>
+      <span class="dd-star">★</span>
+    </div>
+    <p class="dd-category-label">Category: <strong id="dd-category"></strong></p>
+
+    <!-- Wager phase -->
+    <div id="dd-wager-area">
+      <p class="dd-section-label">Which team is answering?</p>
+      <div id="dd-team-select" class="dd-team-select"></div>
+
+      <p class="dd-section-label">Enter your wager:</p>
+      <input id="dd-wager-input" type="number" class="dd-wager-input" placeholder="200">
+
+      <button id="btn-dd-see-clue" class="btn btn-primary">See the Clue →</button>
+    </div>
+
+    <!-- Clue phase -->
+    <div id="dd-clue-area" style="display:none">
+      <p id="dd-clue-text" class="clue-text"></p>
+      <button id="btn-dd-reveal" class="btn btn-reveal">Show Answer</button>
+    </div>
+
+    <!-- Answer + score phase -->
+    <div id="dd-answer-area" style="display:none">
+      <p id="dd-answer" class="clue-answer"></p>
+    </div>
+
+    <div id="dd-score-buttons" class="score-buttons-area"></div>
+
+  </div>
+
+</div><!-- /modal-dd -->
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL — FINAL JEOPARDY
+═══════════════════════════════════════════════════════ -->
+<div id="modal-fj" class="modal modal-fj" role="dialog" aria-modal="true" aria-labelledby="fj-headline">
+
+  <div class="modal-box modal-fj-box">
+    <div class="fj-banner">
+      <span class="fj-headline" id="fj-headline">Final Jeopardy</span>
+    </div>
+
+    <p class="fj-category-label">Category: <strong id="fj-category"></strong></p>
+
+    <!-- Wager section -->
+    <div id="fj-wager-section">
+      <p class="dd-section-label">Enter wagers before the clue is revealed:</p>
+      <div id="fj-wager-area" class="fj-wager-area"></div>
+      <p id="fj-wager-error" class="wager-error-msg hidden"></p>
+      <button id="btn-fj-see-clue" class="btn btn-primary">Lock Wagers & See Clue →</button>
+    </div>
+
+    <!-- Clue section -->
+    <div id="fj-clue-section" style="display:none">
+      <p id="fj-clue" class="clue-text fj-clue-text"></p>
+      <button id="btn-fj-reveal" class="btn btn-reveal">Reveal Answer</button>
+    </div>
+
+    <!-- Answer section -->
+    <div id="fj-answer-section" style="display:none">
+      <p id="fj-answer" class="clue-answer fj-answer hidden"></p>
+    </div>
+
+    <!-- Score buttons -->
+    <div id="fj-score-section" style="display:none">
+      <p class="dd-section-label">Score each team:</p>
+      <div id="fj-score-buttons" class="score-buttons-area"></div>
+    </div>
+
+  </div>
+
+</div><!-- /modal-fj -->
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL — HOW TO PLAY
+═══════════════════════════════════════════════════════ -->
+<div id="modal-htp" class="modal" role="dialog" aria-modal="true" aria-labelledby="htp-title">
+
+  <div class="modal-box modal-htp-box">
+    <div class="htp-header">
+      <h2 id="htp-title" class="htp-title">How to Play</h2>
+      <p class="htp-subtitle">Jeopardy BJJ Edition</p>
+    </div>
+
+    <div class="htp-body">
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">🎯 Goal</h3>
+        <p>Two teams compete to earn the most points by correctly answering BJJ trivia. The board has 5 categories with 5 clues each, worth $200 to $1,000. Highest score wins.</p>
+      </div>
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">📋 Selecting a Clue</h3>
+        <p>Tap any dollar amount on the board to reveal that clue. The host reads it aloud, then taps <strong>Show Answer</strong> to reveal the correct answer.</p>
+      </div>
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">✅ Scoring a Clue</h3>
+        <p>After the answer is shown, tap the correct button for whichever team answered:</p>
+        <ul class="htp-list">
+          <li><strong class="htp-green">✓ +$X</strong> — Team answered correctly. Their score goes up.</li>
+          <li><strong class="htp-red">✗ -$X</strong> — Team answered incorrectly. Their score goes down.</li>
+          <li><strong>No Score — Close</strong> — Nobody answered, or the host decides not to award points. Score unchanged.</li>
+        </ul>
+        <p class="htp-note">If nobody has revealed the answer yet, the footer shows <em>Skip — no score</em> to cancel the clue without revealing it.</p>
+      </div>
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">⭐ Daily Double</h3>
+        <p>Two clues per board are hidden Daily Doubles. When revealed, the answering team chooses a wager (minimum $200, maximum their current score). The wager is added or deducted based on whether they get it right.</p>
+      </div>
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">🏆 Final Jeopardy</h3>
+        <p>Tap <strong>Final Jeopardy</strong> in the footer at any time (usually after the board is complete). Both teams secretly enter a wager, then the clue is revealed. The host awards or deducts each team's wager individually based on their answer.</p>
+      </div>
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">🔄 Rounds &amp; Next Round</h3>
+        <p>Once all 25 clues on the board are used, a <strong>Next Round →</strong> button appears. Tap it to load a fresh board with new questions. The game includes 300 unique clues — enough for 10+ complete rounds.</p>
+      </div>
+
+      <div class="htp-section">
+        <h3 class="htp-section-title">🔧 Manual Score Controls</h3>
+        <p>The small <strong>−</strong> and <strong>+</strong> buttons flanking each team's score adjust it by $100 per tap. Use these for corrections or tie-breaking adjustments outside of normal clue scoring.</p>
+        <p class="htp-note">Double-tap a team name to rename it.</p>
+      </div>
+
+    </div><!-- /htp-body -->
+
+    <div class="htp-footer">
+      <button id="btn-close-htp" class="btn btn-primary">Got It — Back to Game</button>
+    </div>
+
+  </div>
+
+</div><!-- /modal-htp -->
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════ -->
+<script src="assets/js/game_data.js"></script>
+<script src="assets/js/app.js"></script>
+
+</body>
+</html>
